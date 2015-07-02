@@ -18,7 +18,9 @@ var stage = new PIXI.Container();
 var bunnyTexture = PIXI.Texture.fromImage('bunny.png');
 var bunny = new PIXI.Sprite(bunnyTexture);
 global.bunny = bunny
+var carrotTexture = PIXI.Texture.fromImage('carrot.png');
 var otherBunnies = {}
+var carrots = {}
 var bunnySpeed = 5
 
 // Setup the position and scale of the bunny
@@ -72,12 +74,41 @@ socket.on('update_position', function (pos) {
   sprite.position.y = pos.y
 })
 
+socket.on('update_carrot_pos', function (pos) {
+  // pos
+  // {x, y, id}
+  var sprite = carrots[pos.id]
+  if (!sprite) {
+    sprite = new PIXI.Sprite(carrotTexture)
+    stage.addChild(sprite)
+    carrots[pos.id] = sprite
+    sprite.anchor.set(0.5, 0.5)
+    //sprite.scale.x = 0.1
+    //sprite.scale.y = 0.1
+  }
+  sprite.position.x = pos.x
+  sprite.position.y = pos.y
+})
+
 socket.on('player_disconnected', function (id) {
   var sprite = otherBunnies[id]
   if (sprite) {
     stage.removeChild(sprite)
   }
   delete otherBunnies[id] //otherBunnies[id] = undefined
+})
+
+socket.on('carrot_pick_up', function (carrotID, playerID) {
+  console.log('player: deleting carrot '+carrotID+' from player '+playerID+'on socket '+socket.id)
+  var sprite = carrots[carrotID]
+  if (sprite) {
+    stage.removeChild(sprite)
+  }
+  delete carrots[carrotID] //otherBunnies[id] = undefined
+  if (socket.id == playerID)
+    console.log(playerID+': wiiii :3')
+  else
+    console.log(playerID+': joops :(')
 })
 
 socket.on('connect', function () {
