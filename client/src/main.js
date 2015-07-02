@@ -18,7 +18,9 @@ var stage = new PIXI.Container();
 var bunnyTexture = PIXI.Texture.fromImage('bunny.png');
 var bunny = new PIXI.Sprite(bunnyTexture);
 global.bunny = bunny
+var carrotTexture = PIXI.Texture.fromImage('carrot.png');
 var otherBunnies = {}
+var carrots = {}
 var bunnySpeed = 5
 
 // Setup the position and scale of the bunny
@@ -67,6 +69,22 @@ socket.on('update_position', function (pos) {
     stage.addChild(sprite)
     otherBunnies[pos.id] = sprite
     sprite.anchor.set(0.5, 0.5)
+  }
+  sprite.position.x = pos.x
+  sprite.position.y = pos.y
+})
+
+socket.on('update_carrot_pos', function (pos) {
+  // pos
+  // {x, y, id}
+  var sprite = carrots[pos.id]
+  if (!sprite) {
+    sprite = new PIXI.Sprite(carrotTexture)
+    stage.addChild(sprite)
+    carrots[pos.id] = sprite
+    sprite.anchor.set(0.5, 0.5)
+    //sprite.scale.x = 0.1
+    //sprite.scale.y = 0.1
   }
   sprite.position.x = pos.x
   sprite.position.y = pos.y
