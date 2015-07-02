@@ -34,18 +34,34 @@ io.on('connection', function (socket) {
     //comprobar colisiones
     for (var carrotID in carrots) {
       var carrotPos = carrots[carrotID]
-      if (dist(carrotPos, pos) < CarrotRadius + PlayersRadius)
-        console.log(socket.id+': Numnumnum!')
+      if (dist(carrotPos, pos) < CarrotRadius + PlayersRadius) {
+        console.log(socket.id+': Numnumnum! que rica la '+carrotID+' =D')
+        pickUpCarrot(socket, carrotID, socket.id)
+        /*
+	    console.log('deleting carrot '+carrotID+' from '+socket.id)
+        delete carrots[carrotID]
+        socket.broadcast.emit('carrot_pick_up', carrotID, socket.id)
+        socket.emit('carrot_pick_up', carrotID, socket.id)
+        */
+      }
 	}
   })
 })
 
 function dist(pos1, pos2) {
 	var posN = {
-		w: pos2.x - pos1.y,
+		w: pos2.x - pos1.x,
 		h: pos2.y - pos1.y
 	}
 	return Math.sqrt(posN.w*posN.w + posN.h*posN.h)
+}
+
+function pickUpCarrot(socket, carrotID, playerID) {
+	//console.log('deleting carrot '+carrotID+' from '+playerID)
+    delete carrots[carrotID]
+    //socket.broadcast.emit('carrot_pick_up', carrotID, playerID)
+    //socket.emit('carrot_pick_up', carrotID, playerID)
+    io.sockets.emit('carrot_pick_up', carrotID, playerID)
 }
 
 // INIT Pastanagues

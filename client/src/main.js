@@ -98,6 +98,19 @@ socket.on('player_disconnected', function (id) {
   delete otherBunnies[id] //otherBunnies[id] = undefined
 })
 
+socket.on('carrot_pick_up', function (carrotID, playerID) {
+  console.log('player: deleting carrot '+carrotID+' from player '+playerID+'on socket '+socket.id)
+  var sprite = carrots[carrotID]
+  if (sprite) {
+    stage.removeChild(sprite)
+  }
+  delete carrots[carrotID] //otherBunnies[id] = undefined
+  if (socket.id == playerID)
+    console.log(playerID+': wiiii :3')
+  else
+    console.log(playerID+': joops :(')
+})
+
 socket.on('connect', function () {
   console.log('connected')
   socket.emit('update_position', bunny.position)
