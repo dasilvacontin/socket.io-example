@@ -16,12 +16,29 @@ PlayerClient.prototype.constructor = PlayerClient
 
 PlayerClient.prototype.generateSprite = function () {
   this.sprite = new PIXI.Sprite(bunnyTexture)
+  this.sprite.tint = this.color
   this.pos = this.sprite.position
   this.updatePosition({
     x: Math.floor(Math.random() * 800),
     y: Math.floor(Math.random() * 600)
   })
   this.sprite.anchor.set(0.5, 0.5)
+
+  this.usernameSprite = new PIXI.Text(this.username)
+  this.usernameSprite.style = {font: "30px Snippet", fill: "white"}
+  this.usernameSprite.anchor.set(0.5, 0)
+  this.usernameSprite.position.y = 70
+  this.sprite.addChild(this.usernameSprite)
+}
+
+PlayerClient.prototype.setUsername = function (username) {
+  this.username = username
+  this.usernameSprite.text = username
+}
+
+PlayerClient.prototype.setColor = function (color) {
+  this.color = color
+  this.sprite.tint = color
 }
 
 PlayerClient.prototype.moveUsingInput = function () {

@@ -14,7 +14,8 @@ document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
 
 var bunny = new PlayerClient()
-bunny.username = prompt("What's your username?")
+var username = prompt("What's your username?")
+bunny.setUsername(username)
 // Add the bunny's sprite to the scene we are building.
 stage.addChild(bunny.sprite);
 global.bunny = bunny
@@ -34,7 +35,6 @@ function animate() {
     // move bunny using keyboard keys
     var hasMoved = bunny.moveUsingInput()
     if (hasMoved) {
-      console.log(bunny.pos)
       socket.emit('update_position', bunny.pos)
     }
 
@@ -44,8 +44,8 @@ function animate() {
 
 socket.on('logged_player', function (bunnyInfo) {
   var otherBunny = new PlayerClient()
-  otherBunny.username = bunnyInfo.username
-  otherBunny.color = bunnyInfo.color
+  otherBunny.setUsername(bunnyInfo.username)
+  otherBunny.setColor(bunnyInfo.color)
   otherBunny.updatePosition(bunnyInfo.pos)
   stage.addChild(otherBunny.sprite)
   otherBunnies[bunnyInfo.id] = otherBunny
