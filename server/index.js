@@ -50,6 +50,7 @@ function checkPickupCollision (playerId) {
     if (distPtoP(player, pickup) < 50) {
       io.sockets.emit('collected_pickup', pickup.id)
       console.log('collision with pickup', pickup)
+      delete pickups[pickupId]
     }
   }
 }
