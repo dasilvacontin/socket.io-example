@@ -26,6 +26,7 @@ io.on('connection', function (socket) {
   })
 
   socket.on('update_position', function (pos) {
+    console.log('pos', pos)
     pos.id = socket.id
     players[socket.id] = pos
     socket.broadcast.emit('update_position', pos)

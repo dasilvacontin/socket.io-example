@@ -1,5 +1,4 @@
-var KeyboardJS = require('./Keyboard.js')
-var keyboard = new KeyboardJS(false)
+var PlayerClient = require('./PlayerClient.js')
 
 var serverURL = 'localhost:9000'
 var socket = require('socket.io-client')(serverURL)
@@ -14,23 +13,15 @@ document.body.appendChild(renderer.view);
 // You need to create a root container that will hold the scene you want to draw.
 var stage = new PIXI.Container();
 
-// This creates a texture from a 'bunny.png' image.
-var bunnyTexture = PIXI.Texture.fromImage('bunny.png');
-var bunny = new PIXI.Sprite(bunnyTexture);
+var bunny = new PlayerClient()
+bunny.username = prompt("What's your username?")
+// Add the bunny's sprite to the scene we are building.
+stage.addChild(bunny.sprite);
 global.bunny = bunny
-var otherBunnies = {}
-var bunnySpeed = 5
 
+var otherBunnies = {}
 var pickupTexture = PIXI.Texture.fromImage('carrot.png')
 var pickups = {}
-
-// Setup the position and scale of the bunny
-bunny.position.x = Math.random() * 800
-bunny.position.y = Math.random() * 600
-bunny.anchor.set(0.5, 0.5)
-
-// Add the bunny to the scene we are building.
-stage.addChild(bunny);
 
 // kick off the animation loop (defined below)
 animate();
@@ -39,22 +30,11 @@ function animate() {
     // start the timer for the next animation loop
     requestAnimationFrame(animate);
 
-    /*
-    var oldPos = {
-      x: bunny.position.x,
-      y: bunny.position.y
-    }
-    */
-    var oldPos = bunny.position.clone()
-
     // move bunny using keyboard keys
-    if (keyboard.char('W')) bunny.position.y -= bunnySpeed
-    if (keyboard.char('A')) bunny.position.x -= bunnySpeed
-    if (keyboard.char('D')) bunny.position.x += bunnySpeed
-    if (keyboard.char('S')) bunny.position.y += bunnySpeed
-
-    if (oldPos.x != bunny.position.x || oldPos.y != bunny.position.y) {
-      socket.emit('update_position', bunny.position)
+    var hasMoved = bunny.moveUsingInput()
+    if (hasMoved) {
+      console.log(bunny.pos)
+      socket.emit('update_position', bunny.pos)
     }
 
     // this is the main render call that makes pixi draw your container and its children.
@@ -64,15 +44,13 @@ function animate() {
 socket.on('update_position', function (pos) {
   // pos
   // {x, y, id}
-  var sprite = otherBunnies[pos.id]
-  if (!sprite) {
-    sprite = new PIXI.Sprite(bunnyTexture)
-    stage.addChild(sprite)
-    otherBunnies[pos.id] = sprite
-    sprite.anchor.set(0.5, 0.5)
+  var otherBunny = otherBunnies[pos.id]
+  if (!otherBunny) {
+    otherBunny = new PlayerClient()
+    stage.addChild(otherBunny.sprite)
+    otherBunnies[pos.id] = otherBunny
   }
-  sprite.position.x = pos.x
-  sprite.position.y = pos.y
+  otherBunny.updatePosition(pos)
 })
 
 socket.on('init_pickups', function (newPickups) {
@@ -84,7 +62,7 @@ socket.on('init_pickups', function (newPickups) {
     pickupSprite.anchor.set(0.5, 0.5)
     pickupSprite.scale.set(0.1, 0.1)
     stage.addChild(pickupSprite)
-    pickups[pickup.id] = pickupSprite
+    pickups[pickupId] = pickupSprite
   }
 })
 
@@ -97,16 +75,16 @@ socket.on('collected_pickup', function (pickupId) {
 })
 
 socket.on('player_disconnected', function (id) {
-  var sprite = otherBunnies[id]
-  if (sprite) {
-    stage.removeChild(sprite)
+  var otherBunny = otherBunnies[id]
+  if (otherBunny) {
+    stage.removeChild(otherBunny.sprite)
+    delete otherBunnies[id] //otherBunnies[id] = undefined
   }
-  delete otherBunnies[id] //otherBunnies[id] = undefined
 })
 
 socket.on('connect', function () {
   console.log('connected')
-  socket.emit('update_position', bunny.position)
+  socket.emit('update_position', bunny.pos)
 })
 // npm install
 //
