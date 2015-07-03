@@ -12,22 +12,20 @@ var pickups = {}
 io.on('connection', function (socket) {
   socket.broadcast.emit('hi')
   console.log('connection', socket.id)
-  var player = new Player()
-  player.id = socket.id
-  players[socket.id] = player
 
   for (var playerId in players) {
     var player = players[playerId]
     socket.emit('logged_player', player)
-
   }
-  //socket.emit('init_players', players)
 
   socket.emit('init_pickups', pickups)
 
   socket.on('login', function (info) {
     console.log(info)
-    var player = players[socket.id]
+    var player = new Player()
+    player.id = socket.id
+    players[socket.id] = player
+
     player.username = info.username
     player.color = info.color
     player.pos = info.pos
