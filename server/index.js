@@ -35,7 +35,6 @@ io.on('connection', function (socket) {
   socket.on('update_position', function (pos) {
     var player = players[socket.id]
     player.updatePosition(pos)
-    console.log('pos', pos)
     pos.id = socket.id
     socket.broadcast.emit('update_position', pos)
     checkPickupCollision(socket.id)
@@ -48,15 +47,24 @@ io.on('connection', function (socket) {
   })
 })
 
-var pickupCount = Math.floor(Math.random() * 30 + 10)
-for (var i = 0; i < pickupCount; ++i) {
-  var pickup = {
-    id: i,
-    x: Math.floor(Math.random() * MAP_WIDTH),
-    y: Math.floor(Math.random() * MAP_HEIGHT)
+var nextPickupId = 0
+function generatePickups () {
+  console.log('generatePickups')
+  var pickupCount = Math.floor(Math.random() * 30 + 10)
+  var i
+  for (i = nextPickupId; i < nextPickupId + pickupCount; ++i) {
+    var pickup = {
+      id: i,
+      x: Math.floor(Math.random() * MAP_WIDTH),
+      y: Math.floor(Math.random() * MAP_HEIGHT)
+    }
+    pickups[pickup.id] = pickup
   }
-  pickups[pickup.id] = pickup
+  nextPickupId = i
+  io.sockets.emit('init_pickups', pickups)
 }
+
+setInterval(generatePickups, 5 * 1000)
 
 function checkPickupCollision (playerId) {
   var player = players[playerId]

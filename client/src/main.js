@@ -62,14 +62,17 @@ socket.on('update_position', function (pos) {
 
 socket.on('init_pickups', function (newPickups) {
   for (var pickupId in newPickups) {
-    var pickup = newPickups[pickupId]
-    var pickupSprite = new PIXI.Sprite(pickupTexture)
-    pickupSprite.position.x = pickup.x
-    pickupSprite.position.y = pickup.y
-    pickupSprite.anchor.set(0.5, 0.5)
-    pickupSprite.scale.set(0.1, 0.1)
-    stage.addChild(pickupSprite)
-    pickups[pickupId] = pickupSprite
+    var pickupData = newPickups[pickupId]
+    var pickupSprite = pickups[pickupId]
+    if (!pickupSprite) {
+      pickupSprite = new PIXI.Sprite(pickupTexture)
+      pickupSprite.position.x = pickupData.x
+      pickupSprite.position.y = pickupData.y
+      pickupSprite.anchor.set(0.5, 0.5)
+      pickupSprite.scale.set(0.1, 0.1)
+      stage.addChild(pickupSprite)
+      pickups[pickupId] = pickupSprite
+    }
   }
 })
 
