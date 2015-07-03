@@ -1,6 +1,6 @@
 var PlayerClient = require('./PlayerClient.js')
 
-var serverURL = 'localhost:9000'
+var serverURL = '10.182.47.139:9000'
 var socket = require('socket.io-client')(serverURL)
 
 // You can use either `new PIXI.WebGLRenderer`, `new PIXI.CanvasRenderer`, or `PIXI.autoDetectRenderer`
@@ -55,7 +55,9 @@ socket.on('update_position', function (pos) {
   // pos
   // {x, y, id}
   var otherBunny = otherBunnies[pos.id]
-  otherBunny.updatePosition(pos)
+  if (otherBunny) {
+    otherBunny.updatePosition(pos)
+  }
 })
 
 socket.on('init_pickups', function (newPickups) {
