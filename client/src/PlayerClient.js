@@ -35,4 +35,16 @@ PlayerClient.prototype.moveUsingInput = function () {
   return (oldPos.x != this.pos.x || oldPos.y != this.pos.y)
 }
 
+PlayerClient.prototype.generatePacket = function () {
+  var packet = {
+    username: this.username,
+    color: this.color,
+    pos: {
+      x: this.pos.x,
+      y: this.pos.y
+    }
+  }
+  return packet
+}
+
 module.exports = PlayerClient

@@ -1,6 +1,8 @@
 var port = process.env.PORT || 9000
 var io = require('socket.io')(port)
 
+var Player = require('../shared/Player.js')
+
 var MAP_WIDTH = 800
 var MAP_HEIGHT = 600
 
@@ -10,27 +12,41 @@ var pickups = {}
 io.on('connection', function (socket) {
   socket.broadcast.emit('hi')
   console.log('connection', socket.id)
+  var player = new Player()
+  player.id = socket.id
+  players[socket.id] = player
 
   for (var playerId in players) {
-    var playerPos = players[playerId]
-    socket.emit('update_position', playerPos)
+    var player = players[playerId]
+    socket.emit('logged_player', player)
+
   }
   //socket.emit('init_players', players)
 
   socket.emit('init_pickups', pickups)
 
+  socket.on('login', function (info) {
+    console.log(info)
+    var player = players[socket.id]
+    player.username = info.username
+    player.color = info.color
+    player.pos = info.pos
+    socket.broadcast.emit('logged_player', player)
+  })
+
+  socket.on('update_position', function (pos) {
+    var player = players[socket.id]
+    player.updatePosition(pos)
+    console.log('pos', pos)
+    pos.id = socket.id
+    socket.broadcast.emit('update_position', pos)
+    checkPickupCollision(socket.id)
+  })
+
   socket.on('disconnect', function () {
     console.log('disconnection', socket.id)
     delete players[socket.id]
     socket.broadcast.emit('player_disconnected', socket.id)
-  })
-
-  socket.on('update_position', function (pos) {
-    console.log('pos', pos)
-    pos.id = socket.id
-    players[socket.id] = pos
-    socket.broadcast.emit('update_position', pos)
-    checkPickupCollision(socket.id)
   })
 })
 
@@ -48,7 +64,7 @@ function checkPickupCollision (playerId) {
   var player = players[playerId]
   for (var pickupId in pickups) {
     var pickup = pickups[pickupId]
-    if (distPtoP(player, pickup) < 50) {
+    if (distPtoP(player.pos, pickup) < 50) {
       io.sockets.emit('collected_pickup', pickup.id)
       console.log('collision with pickup', pickup)
       delete pickups[pickupId]

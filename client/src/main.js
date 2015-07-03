@@ -20,6 +20,7 @@ stage.addChild(bunny.sprite);
 global.bunny = bunny
 
 var otherBunnies = {}
+global.otherBunnies = otherBunnies
 var pickupTexture = PIXI.Texture.fromImage('carrot.png')
 var pickups = {}
 
@@ -41,15 +42,19 @@ function animate() {
     renderer.render(stage);
 }
 
+socket.on('logged_player', function (bunnyInfo) {
+  var otherBunny = new PlayerClient()
+  otherBunny.username = bunnyInfo.username
+  otherBunny.color = bunnyInfo.color
+  otherBunny.updatePosition(bunnyInfo.pos)
+  stage.addChild(otherBunny.sprite)
+  otherBunnies[bunnyInfo.id] = otherBunny
+})
+
 socket.on('update_position', function (pos) {
   // pos
   // {x, y, id}
   var otherBunny = otherBunnies[pos.id]
-  if (!otherBunny) {
-    otherBunny = new PlayerClient()
-    stage.addChild(otherBunny.sprite)
-    otherBunnies[pos.id] = otherBunny
-  }
   otherBunny.updatePosition(pos)
 })
 
@@ -84,7 +89,7 @@ socket.on('player_disconnected', function (id) {
 
 socket.on('connect', function () {
   console.log('connected')
-  socket.emit('update_position', bunny.pos)
+  socket.emit('login', bunny.generatePacket())
 })
 // npm install
 //
