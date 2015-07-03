@@ -21,6 +21,9 @@ global.bunny = bunny
 var otherBunnies = {}
 var bunnySpeed = 5
 
+var pickupTexture = PIXI.Texture.fromImage('carrot.png')
+var pickups = {}
+
 // Setup the position and scale of the bunny
 bunny.position.x = Math.random() * 800
 bunny.position.y = Math.random() * 600
@@ -70,6 +73,19 @@ socket.on('update_position', function (pos) {
   }
   sprite.position.x = pos.x
   sprite.position.y = pos.y
+})
+
+socket.on('init_pickups', function (newPickups) {
+  for (var pickupId in newPickups) {
+    var pickup = newPickups[pickupId]
+    var pickupSprite = new PIXI.Sprite(pickupTexture)
+    pickupSprite.position.x = pickup.x
+    pickupSprite.position.y = pickup.y
+    pickupSprite.anchor.set(0.5, 0.5)
+    pickupSprite.scale.set(0.1, 0.1)
+    stage.addChild(pickupSprite)
+    pickups[pickup.id] = pickupSprite
+  }
 })
 
 socket.on('player_disconnected', function (id) {
