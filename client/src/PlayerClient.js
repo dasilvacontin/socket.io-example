@@ -32,8 +32,8 @@ PlayerClient.prototype.generateSprite = function () {
 }
 
 PlayerClient.prototype.setUsername = function (username) {
-  this.username = username
-  this.usernameSprite.text = username
+  Player.prototype.setUsername.call(this, username)
+  this.usernameSprite.text = this.username
 }
 
 PlayerClient.prototype.setColor = function (color) {

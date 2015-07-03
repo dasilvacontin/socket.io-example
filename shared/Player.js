@@ -12,4 +12,8 @@ Player.prototype.updatePosition = function (pos) {
   this.pos.y = pos.y
 }
 
+Player.prototype.setUsername = function (username) {
+  this.username = username.substring(0, 20)
+}
+
 module.exports = Player

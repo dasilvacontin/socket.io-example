@@ -26,7 +26,7 @@ io.on('connection', function (socket) {
     player.id = socket.id
     players[socket.id] = player
 
-    player.username = info.username
+    player.setUsername(info.username)
     player.color = info.color
     player.pos = info.pos
     socket.broadcast.emit('logged_player', player)
