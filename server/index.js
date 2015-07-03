@@ -48,6 +48,7 @@ function checkPickupCollision (playerId) {
   for (var pickupId in pickups) {
     var pickup = pickups[pickupId]
     if (distPtoP(player, pickup) < 50) {
+      io.sockets.emit('collected_pickup', pickup.id)
       console.log('collision with pickup', pickup)
     }
   }

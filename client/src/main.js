@@ -88,6 +88,14 @@ socket.on('init_pickups', function (newPickups) {
   }
 })
 
+socket.on('collected_pickup', function (pickupId) {
+  var pickupSprite = pickups[pickupId]
+  if (pickupSprite) {
+    stage.removeChild(pickupSprite)
+    delete pickups[pickupId]
+  }
+})
+
 socket.on('player_disconnected', function (id) {
   var sprite = otherBunnies[id]
   if (sprite) {
